@@ -1,39 +1,50 @@
 import React, { useState } from "react";
+import axios from "axios"
 import "./LoginStyle.css";
 import { Link, useNavigate } from "react-router-dom";
 import "materialize-css/dist/css/materialize.min.css";
 
 function Login() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState(''); 
+    const [user, setUser] = useState(null)
+    const navigate = useNavigate();
+    
     const h1Styles = {
         fontSize: "50px",
     };
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState(null); // Estado para armazenar a mensagem de erro
 
-    const navigate = useNavigate();
 
-    const handleUsernameChange = (e) => {
-        setUsername(e.target.value);
-    };
+    const handleLogin = async (e) => {
+        e.preventDefault()
+        console.log("Username : " +username + "\nPassword :"+ password)
+        try{
+            const response = await axios.post('http://localhost:3030/login',
+                JSON.stringify({username, password}),
+                {
+                    headers: {"Content-Type":'application/json'}
+                }
+            )
 
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
+            console.log(response.data)
+                
+            if(response.status === 200){
+                navigate("/central-do-aluno");
+            }
 
-    const handleLogin = () => {
-        if (username === "admin" && password === "123") {
-            console.log("Login bem sucedido");
-            navigate("/central-aluno");
-            console.log("Username: ", username);
-            console.log("Password: ", password);
-        } else {
-            setError("Usuário ou senha incorreto");
-            console.log("Usuario ou senha incorreto");
+        } catch(error){
+            if(!error?.response){
+                setError('Erro ao acessar o servidor')
+                
+            } else if(error.response.status == 401){
+                setError('Usuarios ou senha invalidos')
+            }
         }
-    };
+                
+    }
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -45,8 +56,10 @@ function Login() {
                 <div className="col-6">
                     <div className="card mt-5">
                         <div className="card-body">
-                            {error && <div className="alert alert-danger">{error}</div>} {/* Renderiza a mensagem de erro se existir */}
-                            <h1 className="card-title text-center bold-heading" style={h1Styles}>
+                            {error && (
+                                <div className="alert alert-danger">{error}</div>
+                            )}
+                            <h1 className="card-title bold-heading" style={h1Styles}>
                                 Login
                             </h1>
                             <form>
@@ -56,31 +69,40 @@ function Login() {
                                         className="form-control"
                                         type="text"
                                         value={username}
-                                        onChange={handleUsernameChange}
+                                        onChange={(e) => setUsername(e.target.value)}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Password:</label>
-                                    <input
-                                        className="form-control"
-                                        type={showPassword ? "text" : "password"}
-                                        value={password}
-                                        onChange={handlePasswordChange}
-                                    />
-                                    <i
-                                        className={`material-icons password-toggle-icon ${
-                                            showPassword ? "active" : ""
-                                        }`}
-                                        onClick={togglePasswordVisibility}
-                                    >
-                                        {showPassword ? "visibility" : "visibility_off"}
-                                    </i>
+                                    <div className="password-input">
+                                        <input
+                                            className="form-control"
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={(e) =>
+                                                setPassword(e.target.value)
+                                            }
+                                        />
+                                        <i
+                                            className="material-icons password-toggle-icon"
+                                            onClick={togglePasswordVisibility}
+                                        >
+                                            {showPassword
+                                                ? "visibility"
+                                                : "visibility_off"}
+                                        </i>
+                                    </div>
                                 </div>
-                                <button className="btn btn-primary" type="button" onClick={handleLogin}>
+                                <button
+                                    className="btn btn-primary login-button"
+                                    type="submit"
+                                    onClick={(e) => handleLogin(e)}
+                                >
                                     Login
                                 </button>
-
-                                <Link to="/outra-pagina">Criar Conta</Link>
+                                <Link to="/outra-pagina" className="create-account-link">
+                                    Criar Conta
+                                </Link>
                             </form>
                         </div>
                     </div>
@@ -88,6 +110,7 @@ function Login() {
             </div>
         </div>
     );
+    
 }
 
 export default Login;
