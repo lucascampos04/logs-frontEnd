@@ -1,0 +1,44 @@
+body
+{
+    background-color: #242424;
+}
+
+.container
+{
+    height: 80vh;
+}
+
+form
+{
+    height: 50vh;
+}
+
+button
+{
+    width: 25vh;
+    height: 30px;
+}
+
+a
+{
+    margin-left: 19vh;
+    font-size: 20px;
+}
+
+h1
+{
+    font-size: 50px;
+}
+
+
+i
+{
+    position: relative;
+    left: 50vh;
+    bottom: 50px;
+}
+
+.error-message
+{
+
+}
