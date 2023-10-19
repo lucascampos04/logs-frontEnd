@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'materialize-css/dist/css/materialize.min.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import CentralDoAluno from "./Componets/CentralDoAluno.jsx";
+import CreateAccount from "./pages/CreateAccount"
 import Login from "./pages/Login.jsx"
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
         // Rotas
         <Router>
             <Routes>
-                <Route path="/" element={<CentralDoAluno />} />
+                <Route path="/create-account" element={<CreateAccount />} />
                 <Route path="/login" element={<Login />} />
             </Routes>
         </Router>
