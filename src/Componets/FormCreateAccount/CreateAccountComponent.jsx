@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import M from "materialize-css";
 import "./CreateAccountStyle.css";
 import "materialize-css/dist/css/materialize.min.css";
+import axios from "axios";
 
 function CreateDirectorForm() {
     // Estados para armazenar os dados do formulário e os erros
@@ -12,6 +13,8 @@ function CreateDirectorForm() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     // Função para verificar a força da senha
     const checkPasswordStrength = () => {
@@ -27,10 +30,8 @@ function CreateDirectorForm() {
         }
     };
 
-    // Função para lidar com mudanças no campo de senha
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-        checkPasswordStrength();
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     // Função para lidar com o envio do formulário
@@ -43,24 +44,57 @@ function CreateDirectorForm() {
         } else {
             setError("");
             checkPasswordStrength();
-
-            console.log("Dados submetidos:");
-            console.log("Username:", username);
-            console.log("Email:", email);
-            console.log("PhoneNumber:", phoneNumber);
-            console.log("Password:", password);
-            console.log("ConfirmPassword:", confirmPassword);
+            setSuccessMessage("Criando conta... ");
+            callApiToCreateAccount();
         }
     };
 
-    // Inicialização de Materialize CSS
+    // Conectando à API para criar a conta
+    const callApiToCreateAccount = async () => {
+        const userData = {
+            username,
+            email,
+            phone_number: phoneNumber,
+            password,
+        };
+
+        try {
+            const response = await axios.post('http://localhost:3030/api/createAccount', userData, {
+                headers: { "Content-Type": 'application/json' }
+            });
+
+            console.log(response.data);
+
+            if (response.status === 201) {
+                setSuccessMessage("Conta criada com sucesso!");
+                location.href = "/login"; // Isso redireciona para a página de login, mas pode não ser a melhor maneira de lidar com isso.
+            }
+        } catch (error) {
+            if (!error?.response) {
+                // Lida com erros de conexão.
+            } else if (error.response.status === 401) {
+                setError('Erro');
+            }
+        }
+    }
+    // Inicialização do Materialize CSS
     React.useEffect(() => {
         M.AutoInit();
     }, []);
 
+    const containerBorder = {
+        marginTop: '10px',
+        boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)"
+    }
+
+    const fontH2 = {
+        textAlign: "center",
+        fontWeight: "bold"
+    }
+    
     return (
-        <div className="container">
-            <h2 id="form-title">Criar Conta</h2>
+        <div className="container dark-background" style={containerBorder}>
+            <h2 id="form-title" style={fontH2}>Criar Conta</h2>
             <form onSubmit={handleFormSubmit}>
                 <div className="row">
                     <div className="input-field col s6">
@@ -79,11 +113,20 @@ function CreateDirectorForm() {
                             name="password"
                             placeholder="Senha"
                             id="password"
-                            type="password"
+                            type={showPassword ? "text" : "password"} // Alterado para mostrar/esconder a senha
                             className={`validate ${error ? "error-input" : ""}`}
                             value={password}
-                            onChange={handlePasswordChange}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                checkPasswordStrength();
+                            }}
                         />
+                        <i
+                            className="material-icons password-toggle-icon"
+                            onClick={togglePasswordVisibility}
+                        >
+                            {showPassword ? "visibility" : "visibility_off"}
+                        </i>
                         {error && <p className="red-text">{error}</p>}
                         {isPasswordValid === false && password.length > 0 && (
                             <div className="row">
@@ -114,11 +157,15 @@ function CreateDirectorForm() {
                             name="confirmPassword"
                             placeholder="Confirmar Senha"
                             id="confirmPassword"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             className={`validate ${error ? "error-input" : ""}`}
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                checkPasswordMatch(); // Verifica se as senhas coincidem
+                            }}
                         />
+                        {error && <p className="red-text">{error}</p>}
                     </div>
                 </div>
                 <div className="row">
