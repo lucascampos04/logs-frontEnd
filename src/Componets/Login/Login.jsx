@@ -100,7 +100,7 @@ function Login() {
                                 >
                                     Login
                                 </button>
-                                <Link to="/outra-pagina" className="create-account-link">
+                                <Link to="/create-account" className="create-account-link">
                                     Criar Conta
                                 </Link>
                             </form>
