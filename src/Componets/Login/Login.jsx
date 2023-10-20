@@ -22,7 +22,7 @@ function Login() {
         e.preventDefault()
         console.log("Username : " +username + "\nPassword :"+ password)
         try{
-            const response = await axios.post('http://localhost:3030/login',
+            const response = await axios.post('http://localhost:3030/api/login',
                 JSON.stringify({username, password}),
                 {
                     headers: {"Content-Type":'application/json'}
